@@ -3,6 +3,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))  # Add this line to modify the path
 
 import pytest
+import os
 from tkinter import Tk
 from modbus_scanner_app import ModbusScannerApp
 
@@ -12,6 +13,7 @@ def app():
     app = ModbusScannerApp(root)
     return app
 
+@pytest.mark.skipif("DISPLAY" not in os.environ, reason="No display available")
 def test_ui_initialization(app):
     assert app.root is not None  # Ensure root window exists
     assert app.notebook is not None  # Check if notebook (tab container) is initialized
