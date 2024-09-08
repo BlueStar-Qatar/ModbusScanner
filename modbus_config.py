@@ -1,5 +1,5 @@
 DEFAULT_CONFIG = {
-    'port': '/dev/ttyUSB0',
+    'port': 'COM4',
     'baudrate': 9600,
     'parity': 'N',
     'stopbits': 1,

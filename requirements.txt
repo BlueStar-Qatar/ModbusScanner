@@ -3,3 +3,4 @@ pyserial==3.5           # Required by pymodbus for serial communication
 
 # pyinstaller to package Python script into a standalone executable
 pyinstaller==5.0.1      # For bundling the Python script into an executable
+pytest==8.3.2           # For testing the Python script
