@@ -1,5 +1,6 @@
 pymodbus==2.5.3         # For Modbus communication
 pyserial==3.5           # Required by pymodbus for serial communication
+pillow==10.4.0           # For image processing
 
 # pyinstaller to package Python script into a standalone executable
 pyinstaller==5.0.1      # For bundling the Python script into an executable
