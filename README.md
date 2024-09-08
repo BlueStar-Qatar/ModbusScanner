@@ -6,7 +6,13 @@ The **Modbus Scanner Application** is a simple tool designed to scan a range of 
 
 It allows users to configure communication parameters such as serial port, baud rate, parity, stop bits, and more. Users can view the progress of the scan and stop it anytime. The results can be viewed in the GUI or saved for later reference.
 
-**Built with GPT-4o** This application was generated with the help of GPT-4o. 95% of this application is written by GPT-4o and the whole application was completed in a matter of minutes.
+### Background
+
+I couldn't find a simple portable tool to check whether all devices in the loop are communicating or not, so I created this application.
+
+**Built with GPT-4o** This application was generated with the help of GPT-4o. 95% of this application is written by GPT-4o and the whole application was completed in a matter of minutes. This is basically a wrapper for pymodbus package.
+
+Tested in a live environment with 3 slave devices.
 
 ![Modbus Scanner GUI](screenshot.png)
 
@@ -19,7 +25,7 @@ It allows users to configure communication parameters such as serial port, baud 
 - **Real-time Results**: Results are displayed in real-time with a progress bar to show the status of the scan.
 - **Dark Theme**: A modern dark theme for better visual experience.
 - **Stop Scan**: Option to stop the scan at any point.
-- **Embedded Logo**: The logo is embedded within the application for portability.
+- **Save Results**: Results are saved into a text file on completion.
 
 ---
 
@@ -34,9 +40,9 @@ On the **Settings** tab, configure the following parameters:
 - **Parity**: The parity mode (None, Even, Odd).
 - **Stop Bits**: Choose between `1` or `2` stop bits.
 - **Byte Size**: The number of data bits (5, 6, 7, or 8).
+- **Timeout**: Timeout in seconds for device responses.
 - **Start Address**: The starting Modbus address for the scan.
 - **End Address**: The ending Modbus address for the scan.
-- **Timeout**: Timeout in seconds for device responses.
 
 #### 2. Start the Scan
 
