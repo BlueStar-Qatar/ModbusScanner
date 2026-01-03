@@ -1,3 +1,4 @@
 pymodbus==2.5.3         # For Modbus communication
 pyserial==3.5           # Required by pymodbus for serial communication
 pillow==10.4.0          # For image processing
+ttkbootstrap==1.10.1    # Modern theming for ttk/Tkinter

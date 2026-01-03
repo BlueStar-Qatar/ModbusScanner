@@ -2,15 +2,15 @@
 
 ### Overview
 
-The **Modbus Scanner Application** is a simple tool designed to scan a range of Modbus addresses and list out connected Modbus devices. This application is built using Python, Tkinter for the graphical user interface (GUI), and PyModbus for the underlying Modbus communication.
+The **Modbus Scanner Application** is a lightweight desktop field tool for **Modbus RTU** (serial/RS-485). It scans a range of slave IDs to find responding devices and can also read live data (coils, discrete inputs, and registers) from a selected slave.
 
-It allows users to configure communication parameters such as serial port, baud rate, parity, stop bits, and more. Users can view the progress of the scan and stop it anytime. The results can be viewed in the GUI or saved for later reference.
+It is built with Python + Tkinter/ttk (styled with `ttkbootstrap`) and uses `pymodbus` for Modbus communication. Results can be reviewed in-app and exported for reporting.
 
 ### Background
 
 I couldn't find a simple portable tool to check whether all devices in the loop are communicating or not, so I created this application.
 
-**Built with GPT-4o** This application was generated with the help of GPT-4o. 95% of this application is written by GPT-4o and the whole application was completed in a matter of minutes. This is basically a wrapper for pymodbus package.
+**Built with GPT-4o** This application was generated with the help of GPT-4o as a wrapper around `pymodbus`, then refactored and expanded with a modern UI, exports, profiles, and live read/polling using GPT 5.2.
 
 Tested in a live environment with 3 slave devices.
 
@@ -20,12 +20,17 @@ Tested in a live environment with 3 slave devices.
 
 ### Features
 
-- **Modbus Address Scanning**: Scans a range of Modbus addresses to detect connected devices.
-- **User-friendly Interface**: Configurable parameters like baud rate, parity, port, stop bits, and timeout via an intuitive interface.
-- **Real-time Results**: Results are displayed in real-time with a progress bar to show the status of the scan.
-- **Dark Theme**: A modern dark theme for better visual experience.
-- **Stop Scan**: Option to stop the scan at any point.
-- **Save Results**: Results are saved into a text file on completion.
+- **Modbus Address Scanning**: Scans a range of Modbus slave IDs to detect connected devices.
+- **Configurable Probe**: Choose probe method (0x03/0x04), starting register and count to reduce false negatives.
+- **Modern Results View**: Table view with per-slave status + response time; double-click any row for full details.
+- **Progress + Status Bar**: Real-time scan progress, current slave ID, and summary counters.
+- **Export + Auto-save**: Save as TXT/CSV/JSON and auto-save a timestamped TXT to a user-writable location.
+- **Read Live Data**: Read coils/discrete inputs/holding registers/input registers (0x01/0x02/0x03/0x04).
+- **Polling / Refresh Reads**: Start polling with a configurable interval for live monitoring.
+- **Data Decode Options**: Common data types + byte/word order controls; coils/inputs can display as `True/False` or `0/1`.
+- **Themes**: Light/Dark toggle with blue accents (in the **Preferences** tab).
+- **Profiles**: Save named profiles and automatically restore last-used settings (stored in `~/.modbus_scanner/preferences.json`).
+- **Stop Anytime**: Stop scan/read/polling quickly and safely.
 
 ---
 
@@ -33,24 +38,41 @@ Tested in a live environment with 3 slave devices.
 
 #### 1. Configure Settings
 
-On the **Settings** tab, configure the following parameters:
+On the **Settings** tab, configure the following:
 
-- **Port**: The serial port used for communication (e.g., `/dev/ttyUSB0` or `COM3`).
-- **Baud Rate**: The baud rate for the connection (e.g., `9600`).
-- **Parity**: The parity mode (None, Even, Odd).
-- **Stop Bits**: Choose between `1` or `2` stop bits.
-- **Byte Size**: The number of data bits (5, 6, 7, or 8).
-- **Timeout**: Timeout in seconds for device responses.
-- **Start Address**: The starting Modbus address for the scan.
-- **End Address**: The ending Modbus address for the scan.
+- **Connection**: Port, Baud Rate, Parity, Stop Bits, Byte Size, Timeout.
+- **Scan Range**: Start Address / End Address (used as the slave ID range to scan, typically `1` to `247`).
+- **Probe**: Probe Method (Holding Registers `0x03` or Input Registers `0x04`) and the probe Register + Count.
+- **Profile**: Select a saved profile, or type a new profile name and click **Save** (or **Delete**).
 
 #### 2. Start the Scan
 
-After configuring the settings, click the **Start Scan** button. The application will begin scanning the specified range of Modbus addresses. Results will be displayed in the **Results** tab.
+After configuring the settings, click **Start Scan**. The app switches to the **Results** tab and begins scanning. You’ll see a table of slave IDs with:
+
+- Status (`Responded`, `Exception`, `No response`, `Error`)
+- Response time (ms)
+- Details (double-click a row to view full details)
 
 #### 3. Stop the Scan
 
-At any time during the scan, you can click the **Stop Scan** button in the **Results** tab to stop the scanning process.
+At any time during the scan, click **Stop Scan** on the **Results** tab (or press `Esc`) to stop the scan.
+
+#### 4. Read Data from a Slave
+
+Open the **Read** tab and configure:
+
+- **Slave ID**, **Start address**, and **Count**
+- **Function**: Coils (`0x01`), Discrete Inputs (`0x02`), Holding Registers (`0x03`), Input Registers (`0x04`)
+- **Decode options** (register reads): data type + byte/word order
+- **Bit format** (coil/input reads): `True/False` or `0/1`
+
+Click **Read Once** (or press `F5` / `Ctrl+R`).
+
+For live monitoring, use **Start Poll** with a poll interval to refresh values continuously. Click **Stop** (or press `Esc`) to end polling/reads.
+
+#### 5. Preferences
+
+Open the **Preferences** tab to toggle **Dark mode** and view the available keyboard shortcuts.
 
 ---
 
@@ -58,8 +80,9 @@ At any time during the scan, you can click the **Stop Scan** button in the **Res
 
 #### Prerequisites
 
-- **Python 3.x**: Make sure you have Python 3.x installed on your system.
+- **Python 3.9+**: Required for modern typing used by the app.
 - **Pip**: Ensure pip is installed to handle Python packages.
+  - On some Linux distributions you may need `python3-tk` installed for Tkinter.
 
 #### Clone the Repository
 
@@ -67,7 +90,7 @@ Clone this repository using Git:
 
 ```bash
 git clone https://github.com/BlueStar-Qatar/ModbusScanner.git
-cd modbus-scanner
+cd ModbusScanner
 ```
 
 #### Install Dependencies
@@ -81,8 +104,10 @@ pip install -r requirements.txt
 The main dependencies are:
 
 - **PyModbus**: For Modbus communication.
+- **PySerial**: Serial transport required by PyModbus RTU.
 - **Tkinter**: For the graphical user interface.
 - **Pillow**: For handling images and resizing the logo.
+- **ttkbootstrap**: For modern light UI theming (Bootstrap-inspired ttk styles).
 
 #### Run the Application
 
@@ -98,36 +123,44 @@ python modbus_scanner_app.py
 
 You can package the application into a standalone executable using **PyInstaller**. This will bundle the Python interpreter, dependencies, and resources like the embedded logo.
 
-#### Install PyInstaller
+#### Build a Single-File Portable App
 
-Install PyInstaller using pip:
-
-```bash
-pip install pyinstaller
-```
-
-#### Package the Application
-
-To create a standalone executable (for example, on Windows), run the following command:
+Builds must be done on the target OS (Windows builds Windows `.exe`, etc.).
 
 ```bash
-pyinstaller --onefile --windowed modbus_scanner_app.py
+pip install -r requirements-dev.txt
+python scripts/build_portable.py
 ```
 
-This will create a single executable file in the `dist/` directory that can be distributed without requiring Python to be installed.
+- Output: `dist/ModbusScanner.exe` (Windows) or `dist/ModbusScanner` (Linux/macOS)
+- Optional: `release/ModbusScanner-<version>-portable.zip`
+
+If you prefer to run PyInstaller directly:
+
+```bash
+python -m PyInstaller --noconfirm --clean --onefile --windowed --name ModbusScanner --additional-hooks-dir packaging/hooks modbus_scanner_app.py
+```
 
 ---
 
 ### Project Structure
 
 ```plaintext
-modbus_scanner/
-│
-├── modbus_scanner_app.py      # Main application
-├── modbus_ui.py               # UI components
-├── modbus_scanner.py          # Modbus scanning logic
-├── modbus_helpers.py          # Helper functions
-├── requirements.txt           # Python dependencies
+.
+├── modbus_scanner_app.py      # Main application (Tkinter/ttk UI)
+├── modbus_ui.py               # UI layout builders (tabs/widgets)
+├── modbus_scanner.py          # Scan + read worker logic
+├── modbus_decode.py           # Register decoding helpers
+├── modbus_prefs.py            # Preferences + profiles persistence
+├── modbus_helpers.py          # File/export helpers + tab switching
+├── modbus_config.py           # Defaults
+├── modbus_version.py          # App metadata (version, names)
+├── packaging/                 # PyInstaller hooks + generated assets
+├── scripts/build_portable.py  # One-file portable build script (PyInstaller)
+├── tests/                     # Unit tests
+├── requirements.txt           # Runtime dependencies
+├── requirements-dev.txt       # Dev/build dependencies
+├── screenshot.png             # Screenshot (may be outdated)
 └── README.md                  # This README file
 ```
 
@@ -138,7 +171,10 @@ modbus_scanner/
 - **Python**: The core programming language used.
 - **Tkinter**: The GUI framework for building the interface.
 - **PyModbus**: Library for Modbus protocol support.
+- **PySerial**: Serial transport used by Modbus RTU.
 - **Pillow**: Image processing library used to embed the logo.
+- **ttkbootstrap**: Modern theming library for Tkinter/ttk.
+- **PyInstaller**: Packaging tool for building a one-file portable executable.
 
 ---
 

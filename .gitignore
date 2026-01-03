@@ -13,6 +13,8 @@ env/
 build/
 dist/
 *.spec
+release/
+packaging/_generated/
 
 # App outputs
 modbus_scan_results*.txt
