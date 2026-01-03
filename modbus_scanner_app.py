@@ -429,20 +429,20 @@ class ModbusScannerApp:
             surface = "#111827"
             text_color = "#e2e8f0"
             muted_text = "#94a3b8"
-            accent = "#3b82f6"
-            accent_hover = "#2563eb"
+            accent = "#60a5fa"
+            accent_hover = "#3b82f6"
             border = "#334155"
             log_bg = "#0b1220"
             log_fg = "#e2e8f0"
         else:
             app_bg = "#f7f9fc"
-            header_bg = "#e8f1ff"
+            header_bg = "#eef5ff"
             surface = "#ffffff"
             text_color = "#0f172a"
             muted_text = "#475569"
-            accent = "#1e88e5"
-            accent_hover = "#1565c0"
-            border = "#d0d7e2"
+            accent = "#1d4ed8"
+            accent_hover = "#1e40af"
+            border = "#c7d2fe"
             log_bg = "#ffffff"
             log_fg = "#0f172a"
 
@@ -478,8 +478,8 @@ class ModbusScannerApp:
                 except Exception:
                     self.style = ttk.Style(theme=theme_name)
 
-            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=accent, font=("Segoe UI", 16, "bold"))
-            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 9))
+            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=text_color, font=("Segoe UI", 18, "bold"))
+            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 10))
             self.style.configure("Header.TFrame", background=header_bg)
             self.style.configure("Header.TLabel", background=header_bg, foreground=text_color)
             self.style.configure("Treeview", rowheight=28)
@@ -497,8 +497,8 @@ class ModbusScannerApp:
 
             self.style.configure("Header.TFrame", background=header_bg)
             self.style.configure("Header.TLabel", background=header_bg, foreground=text_color)
-            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=accent, font=("Segoe UI", 16, "bold"))
-            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 9))
+            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=text_color, font=("Segoe UI", 18, "bold"))
+            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 10))
 
             self.style.configure("TNotebook", background=app_bg, borderwidth=0)
             tab_bg = "#1e293b" if mode == "dark" else "#dde9ff"
