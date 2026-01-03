@@ -18,3 +18,7 @@ packaging/_generated/
 
 # App outputs
 modbus_scan_results*.txt
+
+# Local status/planning docs (repo-specific)
+currentStatus.md
+todo.md
