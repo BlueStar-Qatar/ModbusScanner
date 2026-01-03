@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+from importlib.util import module_from_spec, spec_from_file_location
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
@@ -21,10 +22,15 @@ def _run(cmd: list[str]) -> None:
 
 
 def _safe_version() -> str:
+    version_file = ROOT / "modbus_version.py"
     try:
-        from modbus_version import APP_VERSION
-
-        return str(APP_VERSION)
+        spec = spec_from_file_location("modbus_version", version_file)
+        if spec and spec.loader:
+            module = module_from_spec(spec)
+            spec.loader.exec_module(module)
+            value = getattr(module, "APP_VERSION", None)
+            if value:
+                return str(value)
     except Exception:
         pass
 
