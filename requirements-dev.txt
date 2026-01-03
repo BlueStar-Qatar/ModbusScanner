@@ -1,0 +1,10 @@
+-r requirements.txt
+
+# Linting
+flake8
+
+# Testing
+pytest==8.3.2
+
+# Packaging
+pyinstaller==5.0.1
