@@ -63,34 +63,51 @@ class ModbusScannerApp:
         self.profiles: Dict[str, Any] = {}
 
         # Header (logo + title + subtitle)
-        self.header_frame = ttk.Frame(self.root, style="Header.TFrame")
-        self.header_frame.pack(fill="x", pady=(0, 6))
+        header_bg = "#eaf2ff"
+        header_title_fg = "#0b2c6b"
+        header_subtitle_fg = "#334155"
+        self._header_wrap_after_id: Optional[str] = None
+        self._header_wraplength = 0
 
-        self.accent_bar = tk.Frame(self.header_frame, background="#1e88e5", height=3)
-        self.accent_bar.pack(fill="x", side="top")
+        self.header_frame = tk.Frame(self.root, background=header_bg)
+        self.header_frame.pack(fill="x")
 
-        self.top_frame = ttk.Frame(self.header_frame, style="Header.TFrame", padding=(14, 8))
-        self.top_frame.pack(fill="x")
+        self.top_frame = tk.Frame(self.header_frame, background=header_bg)
+        self.top_frame.pack(fill="x", padx=12, pady=(10, 8))
         self.top_frame.grid_columnconfigure(1, weight=1)
 
         # Load and display the logo from base64
         self.logo_image = load_logo_from_base64()  # Call the function to load the logo
         self.root.iconphoto(True, self.logo_image)
-        self.logo_label = ttk.Label(self.top_frame, image=self.logo_image, style="Header.TLabel")
-        self.logo_label.grid(row=0, column=0,  padx=10)
+        self.logo_label = tk.Label(self.top_frame, image=self.logo_image, background=header_bg, borderwidth=0)
+        self.logo_label.grid(row=0, column=0, padx=(0, 18), sticky="w")
 
         # Add a title text next to the logo
-        self.title_label = ttk.Label(self.top_frame, text="Modbus Scanner", style="HeaderTitle.TLabel")
-        self.title_label.grid(row=0, column=1, padx=10, sticky="w")
+        self.title_label = tk.Label(
+            self.top_frame,
+            text="Modbus Scanner",
+            background=header_bg,
+            foreground=header_title_fg,
+            font=("Segoe UI", 22, "bold"),
+        )
+        self.title_label.grid(row=0, column=1, sticky="w")
 
         # Add a description text below the title
-        self.description_label = ttk.Label(
+        self.description_label = tk.Label(
             self.top_frame,
             text="Scan a Modbus RTU loop for responding slave IDs. Configure your connection, choose a probe, then start scanning.",
-            style="HeaderSubtitle.TLabel",
-            wraplength=880,
+            background=header_bg,
+            foreground=header_subtitle_fg,
+            font=("Segoe UI", 10),
+            justify="left",
         )
-        self.description_label.grid(row=1, column=0, columnspan=2, padx=10, pady=(4, 0), sticky="w")
+        self.description_label.grid(row=1, column=0, columnspan=2, pady=(6, 0), sticky="w")
+
+        self.header_divider = tk.Frame(self.header_frame, background="#c7d2fe", height=1)
+        self.header_divider.pack(fill="x")
+
+        self.root.bind("<Configure>", self._on_window_configure)
+        self.root.after(0, self._update_header_wraplength)
 
 
 
@@ -424,8 +441,23 @@ class ModbusScannerApp:
         self.theme_mode = mode
 
         if mode == "dark":
+            header_bg = "#0b2c6b"
+            header_text = "#e2e8f0"
+            header_title = "#f8fafc"
+            header_muted = "#cbd5e1"
+            header_divider = "#1e3a8a"
+        else:
+            header_bg = "#eaf2ff"
+            header_text = "#0f172a"
+            header_title = "#0b2c6b"
+            header_muted = "#334155"
+            header_divider = "#c7d2fe"
+
+        header_title_font = ("Segoe UI", 22, "bold")
+        header_subtitle_font = ("Segoe UI", 10)
+
+        if mode == "dark":
             app_bg = "#0b1220"
-            header_bg = "#0f172a"
             surface = "#111827"
             text_color = "#e2e8f0"
             muted_text = "#94a3b8"
@@ -436,7 +468,6 @@ class ModbusScannerApp:
             log_fg = "#e2e8f0"
         else:
             app_bg = "#f7f9fc"
-            header_bg = "#eef5ff"
             surface = "#ffffff"
             text_color = "#0f172a"
             muted_text = "#475569"
@@ -459,7 +490,7 @@ class ModbusScannerApp:
         except Exception:
             pass
         try:
-            self.accent_bar.configure(background=accent)
+            self.header_divider.configure(background=header_divider)
         except Exception:
             pass
         if hasattr(self, "result_text"):
@@ -478,10 +509,20 @@ class ModbusScannerApp:
                 except Exception:
                     self.style = ttk.Style(theme=theme_name)
 
-            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=text_color, font=("Segoe UI", 18, "bold"))
-            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 10))
+            self.style.configure(
+                "HeaderTitle.TLabel",
+                background=header_bg,
+                foreground=header_title,
+                font=header_title_font,
+            )
+            self.style.configure(
+                "HeaderSubtitle.TLabel",
+                background=header_bg,
+                foreground=header_muted,
+                font=("Segoe UI", 10),
+            )
             self.style.configure("Header.TFrame", background=header_bg)
-            self.style.configure("Header.TLabel", background=header_bg, foreground=text_color)
+            self.style.configure("Header.TLabel", background=header_bg, foreground=header_text)
             self.style.configure("Treeview", rowheight=28)
             self.style.configure("TLabel", font=("Segoe UI", 10))
             self.style.configure("TButton", font=("Segoe UI", 10))
@@ -496,9 +537,19 @@ class ModbusScannerApp:
             self.style.configure("TLabel", background=app_bg, foreground=text_color, font=("Segoe UI", 10))
 
             self.style.configure("Header.TFrame", background=header_bg)
-            self.style.configure("Header.TLabel", background=header_bg, foreground=text_color)
-            self.style.configure("HeaderTitle.TLabel", background=header_bg, foreground=text_color, font=("Segoe UI", 18, "bold"))
-            self.style.configure("HeaderSubtitle.TLabel", background=header_bg, foreground=muted_text, font=("Segoe UI", 10))
+            self.style.configure("Header.TLabel", background=header_bg, foreground=header_text)
+            self.style.configure(
+                "HeaderTitle.TLabel",
+                background=header_bg,
+                foreground=header_title,
+                font=header_title_font,
+            )
+            self.style.configure(
+                "HeaderSubtitle.TLabel",
+                background=header_bg,
+                foreground=header_muted,
+                font=("Segoe UI", 10),
+            )
 
             self.style.configure("TNotebook", background=app_bg, borderwidth=0)
             tab_bg = "#1e293b" if mode == "dark" else "#dde9ff"
@@ -554,6 +605,35 @@ class ModbusScannerApp:
 
             self.style.configure("TProgressbar", troughcolor=tab_bg, background=accent)
 
+        for widget, config in (
+            (getattr(self, "header_frame", None), {"background": header_bg}),
+            (getattr(self, "top_frame", None), {"background": header_bg}),
+            (getattr(self, "logo_label", None), {"background": header_bg}),
+            (
+                getattr(self, "title_label", None),
+                {
+                    "background": header_bg,
+                    "foreground": header_title,
+                    "font": header_title_font,
+                },
+            ),
+            (
+                getattr(self, "description_label", None),
+                {
+                    "background": header_bg,
+                    "foreground": header_muted,
+                    "font": header_subtitle_font,
+                },
+            ),
+        ):
+            if widget is None:
+                continue
+            try:
+                widget.configure(**config)
+            except Exception:
+                pass
+        self._update_header_wraplength()
+
         if hasattr(self, "results_tree"):
             if mode == "dark":
                 self.results_tree.tag_configure("responded", foreground="#86efac", background="#052e16")
@@ -565,6 +645,29 @@ class ModbusScannerApp:
                 self.results_tree.tag_configure("exception", foreground="#92400e", background="#fffbeb")
                 self.results_tree.tag_configure("no_response", foreground="#475569", background="#f8fafc")
                 self.results_tree.tag_configure("error", foreground="#991b1b", background="#fee2e2")
+
+    def _on_window_configure(self, _event: tk.Event) -> None:
+        if self._header_wrap_after_id:
+            try:
+                self.root.after_cancel(self._header_wrap_after_id)
+            except Exception:
+                pass
+        self._header_wrap_after_id = self.root.after(50, self._update_header_wraplength)
+
+    def _update_header_wraplength(self) -> None:
+        self._header_wrap_after_id = None
+        try:
+            width = int(self.root.winfo_width())
+        except Exception:
+            return
+        wraplength = max(320, width - 44)
+        if wraplength == self._header_wraplength:
+            return
+        self._header_wraplength = wraplength
+        try:
+            self.description_label.configure(wraplength=wraplength)
+        except Exception:
+            pass
 
     def _configure_accessibility(self) -> None:
         def invoke(widget) -> None:
